@@ -1,0 +1,96 @@
+:root {
+  --primary-500: #189877;
+  --primary-400: #22ad8b;
+  --primary-300: #7dd7bd;
+  --primary-100: #e7f6f1;
+
+  --background: #ffffff;
+  --surface: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --border: #e5e7eb;
+
+  --danger-500: #dc2626;
+  --danger-600: #b91c1c;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+input,
+textarea,
+select {
+  border-radius: 0.75rem;
+  color: var(--text-primary);
+  background: var(--surface);
+}
+
+::placeholder {
+  color: #9ca3af;
+}
+
+.bg-slate-50 {
+  background-color: #ffffff !important;
+}
+
+.bg-gray-50,
+.bg-gray-100 {
+  background-color: #ffffff !important;
+}
+
+.text-slate-900 {
+  color: #111827 !important;
+}
+
+.text-slate-500,
+.text-slate-600 {
+  color: #374151 !important;
+}
+
+.text-gray-900 {
+  color: #111827 !important;
+}
+
+.text-gray-700 {
+  color: #374151 !important;
+}
+
+.text-gray-400 {
+  color: #9ca3af !important;
+}
+
+.border-slate-200,
+.border-slate-300 {
+  border-color: var(--border) !important;
+}
+
+.app-shell {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+.app-main {
+  padding-top: 1rem;
+  padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+  background: #ffffff;
+}
+
+.bottom-nav-safe {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}

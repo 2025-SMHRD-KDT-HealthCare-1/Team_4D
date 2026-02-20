@@ -1,0 +1,13 @@
+{
+  "name": "team5d-guardian",
+  "private": true,
+  "devDependencies": {
+    "vite-plugin-pwa": "^0.21.2"
+  },
+  "scripts": {
+    "dev": "vite --config ../vite.guardian.config.ts",
+    "build": "vite build --config ../vite.guardian.config.ts",
+    "preview": "vite preview --config ../vite.guardian.config.ts",
+    "preview:guardian": "vite preview --config ../vite.guardian.config.ts"
+  }
+}
