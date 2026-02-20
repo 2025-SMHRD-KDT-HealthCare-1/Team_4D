@@ -1,52 +1,70 @@
-﻿# BackEnd
+# Team5D BackEnd
 
-## Socket.IO (minimal integration)
+## Environment
 
-This backend keeps the existing Express API on port `3000` and adds Socket.IO on the same HTTP server.
+`.env`
 
-### Environment
+```env
+PORT=3000
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=postgres
+DB_USER=postgres
+DB_PASSWORD=postgres
+CORS_ORIGINS=http://localhost:5173,http://localhost:5174
+SESSION_SECRET=change-this-secret
+SESSION_COOKIE_NAME=team5d.sid
+SESSION_MAX_AGE_MS=604800000
+```
 
-- `PORT=3000`
-- `CORS_ORIGIN=http://localhost:5173,http://localhost:3001`
-- `SOCKET_ORIGINS=http://localhost:5173` (optional, comma-separated)
+## Install
 
-### Run
+```bash
+npm install
+```
+
+## Create session table
+
+```bash
+psql -U <user> -d <db> -f docs/db/session.sql
+```
+
+## Run
 
 ```bash
 npm run dev
 ```
 
-### Client quick test
+## Quick curl tests
 
 ```bash
-npm i socket.io-client
+curl -i -X POST http://localhost:3000/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"guardian1@example.com","password":"abcd1234","name":"Guardian One","role":"GUARDIAN"}'
 ```
 
-```js
-import { io } from 'socket.io-client';
-
-const socket = io('http://localhost:3000');
-
-socket.on('connect', () => {
-  console.log('connected', socket.id);
-  socket.emit('join', { userId: 7 });
-  socket.emit('ping', { hello: 'world' });
-});
-
-socket.on('pong', (data) => console.log('pong', data));
-socket.on('join:ok', (data) => console.log('joined', data));
-socket.on('alert', (payload) => console.log('alert', payload));
+```bash
+curl -i -c cookie.txt -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"guardian1@example.com","password":"abcd1234"}'
 ```
 
-### Server-side emit example
-
-```js
-const { getIO } = require('./socket');
-
-getIO().to('user:7').emit('alert', {
-  type: 'FALL',
-  title: 'Fall detected',
-});
+```bash
+curl -i -b cookie.txt http://localhost:3000/api/auth/me
 ```
 
-`ping/pong` and `join(userId -> room user:{userId})` are enabled by default.
+```bash
+curl -i -b cookie.txt -X POST http://localhost:3000/api/subjects \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Kim","age":79,"gender":"F"}'
+```
+
+```bash
+curl -i -b cookie.txt -X POST http://localhost:3000/api/auth/logout
+```
+
+## Notes
+
+- Authentication is session-based (`express-session` + `connect-pg-simple`).
+- Error response format is unified as `{ "message": string, "code": string }`.
+- `users.last_login_at` update is skipped automatically if the column does not exist.

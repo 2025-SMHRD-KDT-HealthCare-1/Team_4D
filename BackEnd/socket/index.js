@@ -3,7 +3,7 @@
 let ioInstance;
 
 function parseOrigins() {
-  const defaults = ['http://localhost:5173'];
+  const defaults = ['http://localhost:3001', 'http://localhost:5173', 'http://localhost:5174'];
   const extra = [];
 
   if (process.env.SOCKET_ORIGINS) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { logout } from './src/services/guardianApi';
+import { getMe, logout } from './src/services/guardianApi';
 import { socket } from './src/lib/socket';
 import { Layout, type GuardianTab } from './components/Layout';
 import { Login } from './components/Login';
@@ -13,12 +13,11 @@ import { Settings } from './components/Settings';
 type AuthView = 'login' | 'signup' | 'find';
 type FindMode = 'id' | 'pw';
 
-const GUARDIAN_LOGIN_KEY = 'soin_guardian_logged_in';
-const GUARDIAN_NAME_KEY = 'soin_guardian_name';
 const PUBLIC_PATH_LOGIN = '/login';
 const PUBLIC_PATH_SIGNUP = '/signup';
 const PUBLIC_PATH_FIND_ID = '/find-id';
 const PUBLIC_PATH_FIND_PASSWORD = '/find-password';
+const GUARDIAN_TAB_STORAGE_KEY = 'soin_guardian_current_tab';
 
 const isPublicPath = (pathname: string) =>
   pathname === PUBLIC_PATH_LOGIN ||
@@ -43,31 +42,60 @@ const getAuthStateFromPath = (pathname: string): { view: AuthView; mode: FindMod
 export default function App() {
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [blockedReason, setBlockedReason] = useState('');
   const [authView, setAuthView] = useState<AuthView>('login');
   const [findMode, setFindMode] = useState<FindMode>('id');
-  const [tab, setTab] = useState<GuardianTab>('home');
-  const [guardianName, setGuardianName] = useState(() => window.localStorage.getItem(GUARDIAN_NAME_KEY) || '보호자');
+  const [tab, setTab] = useState<GuardianTab>(() => {
+    const saved = window.localStorage.getItem(GUARDIAN_TAB_STORAGE_KEY);
+    if (saved === 'home' || saved === 'activity' || saved === 'alerts' || saved === 'settings') {
+      return saved;
+    }
+    return 'home';
+  });
+  const [guardianName, setGuardianName] = useState('\uBCF4\uD638\uC790');
 
   useEffect(() => {
-    const loggedIn = window.localStorage.getItem(GUARDIAN_LOGIN_KEY) === 'true';
-    setIsLoggedIn(loggedIn);
-
-    if (!loggedIn) {
-      const pathname = window.location.pathname;
-      if (!isPublicPath(pathname)) {
-        applyPath(PUBLIC_PATH_LOGIN, true);
-        setAuthView('login');
-        setFindMode('id');
-      } else {
-        const parsed = getAuthStateFromPath(pathname);
-        setAuthView(parsed.view);
-        setFindMode(parsed.mode);
+    void (async () => {
+      try {
+        const me = await getMe();
+        if (me.user) {
+          if (me.user.role !== 'GUARDIAN') {
+            setBlockedReason('보호자 계정만 guardian 화면에 접근할 수 있습니다.');
+            setIsLoggedIn(false);
+            setIsAuthReady(true);
+            return;
+          }
+          if (me.user.status !== 'ACTIVE') {
+            setBlockedReason(me.user.status === 'SUSPENDED' ? '정지된 계정입니다.' : '탈퇴한 계정입니다.');
+            setIsLoggedIn(false);
+            setIsAuthReady(true);
+            return;
+          }
+          setIsLoggedIn(true);
+          setGuardianName(me.user.name || '\uBCF4\uD638\uC790');
+          setBlockedReason('');
+          if (isPublicPath(window.location.pathname)) {
+            applyPath('/', true);
+          }
+        } else {
+          setIsLoggedIn(false);
+          const pathname = window.location.pathname;
+          if (!isPublicPath(pathname)) {
+            applyPath(PUBLIC_PATH_LOGIN, true);
+            setAuthView('login');
+            setFindMode('id');
+          } else {
+            const parsed = getAuthStateFromPath(pathname);
+            setAuthView(parsed.view);
+            setFindMode(parsed.mode);
+          }
+        }
+      } catch {
+        setIsLoggedIn(false);
+      } finally {
+        setIsAuthReady(true);
       }
-    } else if (isPublicPath(window.location.pathname)) {
-      applyPath('/', true);
-    }
-
-    setIsAuthReady(true);
+    })();
   }, []);
 
   useEffect(() => {
@@ -92,6 +120,10 @@ export default function App() {
   }, [isLoggedIn]);
 
   useEffect(() => {
+    window.localStorage.setItem(GUARDIAN_TAB_STORAGE_KEY, tab);
+  }, [tab]);
+
+  useEffect(() => {
     const onConnect = () => console.log('socket connected', socket.id);
     const onAlert = (payload: unknown) => {
       console.log('ALERT:', payload);
@@ -106,18 +138,32 @@ export default function App() {
     };
   }, []);
 
-  const doLogout = () => {
-    logout();
-    window.localStorage.removeItem(GUARDIAN_LOGIN_KEY);
-    window.localStorage.removeItem(GUARDIAN_NAME_KEY);
+  const doLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error(error);
+    }
+
     setIsLoggedIn(false);
     setAuthView('login');
+    setBlockedReason('');
     setTab('home');
     applyPath(PUBLIC_PATH_LOGIN, true);
   };
 
   if (!isAuthReady) {
     return null;
+  }
+
+  if (!isLoggedIn && blockedReason) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+        <div className="w-full max-w-md rounded-xl border border-red-200 bg-white p-6 text-center">
+          <p className="text-sm text-red-700">{blockedReason}</p>
+        </div>
+      </div>
+    );
   }
 
   if (!isLoggedIn) {
@@ -145,11 +191,20 @@ export default function App() {
     }
     return (
       <Login
-        onLogin={(name, userId) => {
-          setGuardianName(name);
-          window.localStorage.setItem(GUARDIAN_LOGIN_KEY, 'true');
-          window.localStorage.setItem(GUARDIAN_NAME_KEY, name);
-          socket.emit('join', { userId });
+        onLogin={(user) => {
+          if (user.role !== 'GUARDIAN') {
+            setBlockedReason('보호자 계정만 guardian 화면에 접근할 수 있습니다.');
+            setIsLoggedIn(false);
+            return;
+          }
+          if (user.status !== 'ACTIVE') {
+            setBlockedReason(user.status === 'SUSPENDED' ? '정지된 계정입니다.' : '탈퇴한 계정입니다.');
+            setIsLoggedIn(false);
+            return;
+          }
+          setBlockedReason('');
+          setGuardianName(user.name);
+          socket.emit('join', { userId: user.user_id });
           setIsLoggedIn(true);
           applyPath('/', true);
         }}
@@ -181,9 +236,5 @@ export default function App() {
     }
   };
 
-  return (
-    <Layout tab={tab} setTab={setTab} guardianName={guardianName}>
-      {renderTab()}
-    </Layout>
-  );
+  return <Layout tab={tab} setTab={setTab} guardianName={guardianName}>{renderTab()}</Layout>;
 }

@@ -1,5 +1,44 @@
-﻿# Team5D
+# Team5D
 
-## Guardian PWA
+## BackEnd Session Auth Setup
 
-Guardian 프론트는 Vite + PWA로 빌드됩니다. SPA 라우팅을 사용하는 환경에서 새로고침(예: /guardian 하위 경로 접근)을 할 경우 서버가 모든 경로를 `index.html`로 리라이트하도록 설정해야 404를 피할 수 있습니다. 배포 시 웹서버에 해당 리라이트 규칙을 추가하세요.
+`BackEnd/.env` ����:
+
+```env
+PORT=3000
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=postgres
+DB_USER=postgres
+DB_PASSWORD=postgres
+CORS_ORIGINS=http://localhost:5173,http://localhost:5174
+SESSION_SECRET=change-this-secret
+SESSION_COOKIE_NAME=team5d.sid
+SESSION_MAX_AGE_MS=604800000
+```
+
+���� ���̺� ����:
+
+```bash
+psql -U <user> -d <db> -f BackEnd/docs/db/session.sql
+```
+
+�鿣�� ����:
+
+```bash
+cd BackEnd
+npm install
+npm run dev
+```
+
+������ �׽�Ʈ:
+
+```bash
+curl -i -c cookie.txt -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"guardian1@example.com","password":"abcd1234"}'
+```
+
+```bash
+curl -i -b cookie.txt http://localhost:3000/api/auth/me
+```

@@ -1,9 +1,28 @@
-﻿const db = require('../db/pool');
-
+const db = require('../db/pool');
+let alertsTableExistsPromise;
 function genId(prefix) {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 }
-
+async function hasAlertsTable() {
+  if (alertsTableExistsPromise) {
+    return alertsTableExistsPromise;
+  }
+  alertsTableExistsPromise = db
+    .query(
+      `SELECT 1
+       FROM information_schema.tables
+       WHERE table_name = 'alerts'
+       LIMIT 1`
+    )
+    .then((result) => result.rowCount > 0)
+    .catch(() => false);
+  return alertsTableExistsPromise;
+}
+function createServiceUnavailable(message) {
+  const error = new Error(message);
+  error.statusCode = 503;
+  return error;
+}
 async function getOverview() {
   const subjectResult = await db.query(
     `SELECT target_id AS "subjectId", name AS "subjectName"
@@ -75,6 +94,10 @@ async function getOverview() {
 }
 
 async function getAlerts(limit = 20) {
+  if (!(await hasAlertsTable())) {
+    return { items: [] };
+  }
+
   const parsedLimit = Number(limit) > 0 ? Number(limit) : 20;
   const result = await db.query(
     `SELECT
@@ -97,6 +120,10 @@ async function getAlerts(limit = 20) {
 }
 
 async function createAlert(payload) {
+  if (!(await hasAlertsTable())) {
+    throw createServiceUnavailable('alerts table is not initialized.');
+  }
+
   const targetId = String(payload.targetId || '').trim();
   const deviceId = String(payload.deviceId || '').trim();
   const type = String(payload.type || '').trim();
@@ -136,6 +163,10 @@ async function createAlert(payload) {
 }
 
 async function updateAlert(alertId, payload) {
+  if (!(await hasAlertsTable())) {
+    throw createServiceUnavailable('alerts table is not initialized.');
+  }
+
   const updates = [];
   const params = [];
 
@@ -204,6 +235,10 @@ async function deleteAlert(alertId) {
 }
 
 async function markAlertAsRead(alertId) {
+  if (!(await hasAlertsTable())) {
+    throw createServiceUnavailable('alerts table is not initialized.');
+  }
+
   const result = await db.query(
     `UPDATE alerts
      SET is_read = TRUE, updated_at = NOW()
@@ -485,6 +520,14 @@ async function softDeleteDevice(deviceId) {
 }
 
 async function getActivity(date) {
+  if (!(await hasAlertsTable())) {
+    return {
+      date: date || new Date().toISOString().slice(0, 10),
+      timeline: [],
+      chart: [],
+    };
+  }
+
   const selectedDate = date || new Date().toISOString().slice(0, 10);
 
   const timelineResult = await db.query(

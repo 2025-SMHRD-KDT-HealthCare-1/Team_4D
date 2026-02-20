@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
@@ -9,8 +9,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClassMap: Record<ButtonVariant, string> = {
-  primary:
-    'bg-[#189877] text-white hover:opacity-90 hover:text-white active:scale-95 focus-visible:ring-[var(--primary-400)] shadow-md',
+  primary: 'btn-primary-action hover:!text-white active:scale-95 focus-visible:ring-[var(--primary-400)] shadow-md',
   secondary:
     'bg-white text-[var(--primary-500)] border border-[var(--primary-400)] hover:bg-[var(--primary-100)] hover:text-[var(--primary-500)] active:scale-95 focus-visible:ring-[var(--primary-300)] shadow-md',
   danger:

@@ -7,6 +7,7 @@
 body {
   padding-top: var(--safe-top);
   padding-bottom: var(--safe-bottom);
+  font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
 }
 
 @layer properties {
@@ -1471,4 +1472,19 @@ html {
   50% {
     opacity: .5;
   }
+}
+
+/* Primary action button (forced, non-Tailwind arbitrary color dependency) */
+.btn-primary-action {
+  background-color: #189877 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: calc(var(--radius) + 4px);
+  transition: background-color .15s ease, opacity .15s ease;
+}
+.btn-primary-action:hover {
+  background-color: #157a63 !important;
+}
+.btn-primary-action:disabled {
+  opacity: .5;
 }

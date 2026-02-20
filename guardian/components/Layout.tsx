@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Activity, Bell, Home, Settings, User } from 'lucide-react';
 import soinImg from '../soin.png';
 import { Button } from './ui/Button';
@@ -14,7 +14,7 @@ interface LayoutProps {
 
 function MobileNavigation({ tab, setTab }: { tab: GuardianTab; setTab: (tab: GuardianTab) => void }) {
   const active = '#189877';
-  const inactive = '#94a3b8'; // slate-400 비슷
+  const inactive = '#94a3b8'; // slate-400 fallback color
 
   return (
     <nav className="bottom-nav-safe fixed bottom-0 left-0 right-0 z-20 border-t border-slate-200 bg-white px-4 py-2 shadow-md lg:hidden">
@@ -60,3 +60,4 @@ export function Layout({ tab, setTab, guardianName, children }: LayoutProps) {
     </div>
   );
 }
+

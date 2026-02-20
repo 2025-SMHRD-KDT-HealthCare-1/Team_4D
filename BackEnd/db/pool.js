@@ -1,14 +1,7 @@
-﻿const { Pool } = require('pg');
+const { Pool } = require('pg');
+const { getDbConfig } = require('../config/env');
 
-const connectionString = process.env.DATABASE_URL;
-
-if (!connectionString) {
-  console.error('[db] DATABASE_URL is not set');
-}
-
-const pool = new Pool({
-  connectionString,
-});
+const pool = new Pool(getDbConfig());
 
 pool.on('error', (error) => {
   console.error('[db] unexpected idle client error', error);
@@ -20,8 +13,12 @@ async function checkDbConnection() {
   return result.rows[0];
 }
 
+function query(text, params) {
+  return pool.query(text, params);
+}
+
 module.exports = {
   pool,
-  query: (text, params) => pool.query(text, params),
+  query,
   checkDbConnection,
 };

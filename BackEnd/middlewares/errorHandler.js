@@ -1,18 +1,19 @@
-// 404 handler
 function notFoundHandler(req, res, next) {
   res.status(404).json({
-    message: "Not Found",
+    message: 'Not Found',
+    code: 'NOT_FOUND',
   });
 }
 
-// Common error handler
 function errorHandler(err, req, res, next) {
   const statusCode = err.statusCode || 500;
+  const code = err.code || (statusCode === 500 ? 'INTERNAL_SERVER_ERROR' : 'REQUEST_ERROR');
 
-  console.error("[error]", err);
+  console.error('[error]', err);
 
   res.status(statusCode).json({
-    message: err.message || "Internal Server Error",
+    message: err.message || 'Internal Server Error',
+    code,
   });
 }
 

@@ -1,9 +1,10 @@
-﻿import apiClient, { clearAccessToken, setAccessToken } from '../lib/apiClient';
+import apiClient from '../lib/apiClient';
 import type {
   AdminDeviceListResponse,
   AdminEventListResponse,
   AdminLoginRequest,
   AdminLoginResponse,
+  AdminSessionResponse,
   AdminOverviewResponse,
   AdminStatisticsResponse,
   AdminTargetListResponse,
@@ -17,16 +18,36 @@ function toError(error: unknown, fallback: string): Error {
 
 export async function adminLogin(payload: AdminLoginRequest): Promise<AdminLoginResponse> {
   try {
-    const response = await apiClient.post<AdminLoginResponse>('/api/auth/login', payload);
-    setAccessToken(response.data.accessToken);
+    const response = await apiClient.post<AdminLoginResponse>('/api/auth/login', {
+      login_id: String(payload.login_id || '').trim(),
+      password: String(payload.password || ''),
+    });
     return response.data;
   } catch (error) {
     throw toError(error, 'Login failed.');
   }
 }
 
-export function adminLogout(): void {
-  clearAccessToken();
+export async function getMe(): Promise<AdminSessionResponse> {
+  try {
+    const response = await apiClient.get<AdminSessionResponse>('/api/auth/me', {
+      headers: {
+        'Cache-Control': 'no-store',
+        Pragma: 'no-cache',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw toError(error, 'Failed to restore session.');
+  }
+}
+
+export async function adminLogout(): Promise<void> {
+  try {
+    await apiClient.post('/api/auth/logout');
+  } catch (error) {
+    throw toError(error, 'Logout failed.');
+  }
 }
 
 export async function getAdminOverview(): Promise<AdminOverviewResponse> {

@@ -9,6 +9,15 @@ const { initSocket } = require('./socket');
 const port = getPort();
 const server = http.createServer(app);
 
+server.on('error', (error) => {
+  if (error && error.code === 'EADDRINUSE') {
+    console.error(`[server] port ${port} is already in use. Stop the existing process or change PORT.`);
+    process.exit(1);
+  }
+  console.error('[server] failed to start', error);
+  process.exit(1);
+});
+
 async function bootstrap() {
   try {
     await checkDbConnection();

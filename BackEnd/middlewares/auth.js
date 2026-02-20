@@ -1,35 +1,36 @@
-﻿function parseToken(authorizationHeader) {
-  if (!authorizationHeader) return null;
-
-  const [scheme, token] = String(authorizationHeader).split(' ');
-  if (scheme !== 'Bearer' || !token) return null;
-
-  const match = token.match(/^mock-token-(ADMIN|GUARDIAN)-(.+)$/);
-  if (!match) return null;
-
-  return {
-    role: match[1],
-    userId: match[2],
-  };
-}
-
 function requireAuth(req, res, next) {
-  const auth = parseToken(req.headers.authorization);
-  if (!auth) {
-    return res.status(401).json({ message: 'Unauthorized' });
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({ message: 'Unauthorized', code: 'UNAUTHORIZED' });
   }
-  req.auth = auth;
+
+  if (req.session.user.status !== 'ACTIVE') {
+    return res.status(403).json({ message: 'Account is not active.', code: 'ACCOUNT_NOT_ACTIVE' });
+  }
+
+  req.auth = req.session.user;
   return next();
 }
 
-function requireAdmin(req, res, next) {
-  if (!req.auth || req.auth.role !== 'ADMIN') {
-    return res.status(403).json({ message: 'Forbidden' });
-  }
-  return next();
+function requireRole(role) {
+  return (req, res, next) => {
+    if (!req.session || !req.session.user) {
+      return res.status(401).json({ message: 'Unauthorized', code: 'UNAUTHORIZED' });
+    }
+
+    if (req.session.user.status !== 'ACTIVE') {
+      return res.status(403).json({ message: 'Account is not active.', code: 'ACCOUNT_NOT_ACTIVE' });
+    }
+
+    if (req.session.user.role !== role) {
+      return res.status(403).json({ message: 'Forbidden', code: 'FORBIDDEN' });
+    }
+
+    req.auth = req.session.user;
+    return next();
+  };
 }
 
 module.exports = {
   requireAuth,
-  requireAdmin,
+  requireRole,
 };

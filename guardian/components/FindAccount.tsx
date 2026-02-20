@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { findId, findPassword } from '../src/services/guardianApi';
 import soinImg from '../soin.png';
 
@@ -39,7 +39,7 @@ export function FindAccount({ initialMode, onBack }: FindAccountProps) {
             <img src={soinImg} alt="SOIN" className="h-16 w-auto" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900">{mode === 'id' ? '아이디 찾기' : '비밀번호 찾기'}</h2>
-          <p className="mt-2 text-sm text-slate-600">가입 시 입력한 정보를 입력해주세요.</p>
+          <p className="mt-2 text-sm text-slate-600">가입 시 입력한 정보를 입력해 주세요.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
@@ -52,7 +52,7 @@ export function FindAccount({ initialMode, onBack }: FindAccountProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
-                placeholder="이름을 입력하세요"
+                placeholder=""
               />
             </div>
 
@@ -65,7 +65,7 @@ export function FindAccount({ initialMode, onBack }: FindAccountProps) {
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
                   className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
-                  placeholder="아이디를 입력하세요"
+                  placeholder=""
                 />
               </div>
             ) : null}
@@ -78,26 +78,14 @@ export function FindAccount({ initialMode, onBack }: FindAccountProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
-                placeholder="이메일을 입력하세요"
+                placeholder=""
               />
             </div>
           </div>
 
           <button
             type="submit"
-            className="block flex w-full min-h-[48px] shrink-0 justify-center rounded-lg bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-            style={{
-              backgroundColor: '#059669',
-              color: '#ffffff',
-              width: '100%',
-              padding: '12px 16px',
-              borderRadius: '8px',
-              fontWeight: 700,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '8px',
-            }}
+            className="btn-primary-action h-12 w-full disabled:opacity-50 flex items-center justify-center gap-2 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
           >
             {mode === 'id' ? '아이디 찾기' : '비밀번호 찾기'}
           </button>

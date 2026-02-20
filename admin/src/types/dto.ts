@@ -1,16 +1,24 @@
-﻿export interface AdminLoginRequest {
-  userId: string;
+export interface AdminLoginRequest {
+  login_id: string;
   password: string;
 }
 
 export interface AdminLoginResponse {
-  accessToken: string;
   user: {
-    userId: string;
+    user_id: string;
+    login_id: string;
     name: string;
     email: string;
     role: 'ADMIN' | 'GUARDIAN';
+    status: 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWN';
+    created_at: string;
+    last_login_at: string | null;
   };
+}
+
+export interface AdminSessionResponse {
+  authenticated: boolean;
+  user: AdminLoginResponse['user'] | null;
 }
 
 export interface AdminOverviewResponse {

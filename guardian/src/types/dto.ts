@@ -1,32 +1,46 @@
-﻿export interface HealthResponse {
+export interface HealthResponse {
   status: string;
 }
 
 export interface LoginRequest {
-  userId: string;
+  login_id: string;
   password: string;
 }
 
 export interface LoginResponse {
-  accessToken: string;
   user: {
-    userId: string;
+    user_id: string;
+    login_id: string;
     name: string;
-    email?: string;
-    role?: 'GUARDIAN' | 'ADMIN';
+    email: string;
+    role: 'GUARDIAN' | 'ADMIN';
+    status: 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWN';
+    created_at: string;
+    last_login_at: string | null;
   };
 }
 
+export interface SessionResponse {
+  authenticated: boolean;
+  user: LoginResponse['user'] | null;
+}
+
 export interface SignupRequest {
-  userId: string;
+  login_id: string;
   name: string;
   password: string;
   email: string;
+  role: 'GUARDIAN' | 'ADMIN';
 }
 
 export interface SignupResponse {
-  userId: string;
-  createdAt: string;
+  user_id: string;
+  login_id: string;
+  created_at: string;
+  email: string;
+  name: string;
+  role: 'GUARDIAN' | 'ADMIN';
+  status: 'ACTIVE' | 'SUSPENDED' | 'WITHDRAWN';
 }
 
 export interface FindIdRequest {
@@ -65,7 +79,8 @@ export interface GuardianOverviewResponse {
 
 export interface AlertListItem {
   id: string;
-  type: 'FALL' | 'WANDER' | 'INACTIVITY';
+  analysisId: string;
+  type: string;
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
   title: string;
   description: string;
@@ -80,7 +95,7 @@ export interface AlertListResponse {
 
 export interface MarkAlertReadResponse {
   alertId: string;
-  isRead: true;
+  isRead: boolean;
 }
 
 export interface SubjectItem {

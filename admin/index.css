@@ -1894,3 +1894,22 @@ html {
     transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0) scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1)) rotate(var(--tw-enter-rotate, 0));
   }
 }
+
+body {
+  font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Segoe UI", sans-serif;
+}
+
+/* Primary action button (forced, non-Tailwind arbitrary color dependency) */
+.btn-primary-action {
+  background-color: #189877 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: calc(var(--radius) + 4px);
+  transition: background-color .15s ease, opacity .15s ease;
+}
+.btn-primary-action:hover {
+  background-color: #157a63 !important;
+}
+.btn-primary-action:disabled {
+  opacity: .5;
+}
