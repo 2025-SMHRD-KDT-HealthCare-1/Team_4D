@@ -6,7 +6,7 @@ import soinImg from '../soin.png';
 type FindMode = 'id' | 'pw';
 
 interface LoginProps {
-  onLogin: (name: string) => void;
+  onLogin: (name: string, userId: string) => void;
   onSignupClick: () => void;
   onFindClick: (mode: FindMode) => void;
 }
@@ -24,7 +24,7 @@ export function Login({ onLogin, onSignupClick, onFindClick }: LoginProps) {
     setIsLoading(true);
     try {
       const result = await login({ userId, password });
-      onLogin(result.user.name);
+      onLogin(result.user.name, result.user.userId);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : '로그인에 실패했습니다.');
     } finally {
@@ -53,7 +53,7 @@ return (
               value={userId}
               onChange={(event) => setUserId(event.target.value)}
               className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 placeholder-slate-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
-              placeholder="userid123"
+              placeholder="아이디를 입력하세요"
             />
           </div>
 
@@ -66,7 +66,7 @@ return (
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 className="block w-full rounded-lg border border-slate-300 px-3 py-2 placeholder-slate-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
-                placeholder="••••••••"
+                placeholder="비밀번호를 입력하세요"
               />
               <button
                 type="button"

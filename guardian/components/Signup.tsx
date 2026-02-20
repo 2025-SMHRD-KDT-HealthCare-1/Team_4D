@@ -6,19 +6,44 @@ interface SignupProps {
   onBack: () => void;
 }
 
+const SIGNUP_DRAFT_STORAGE_KEY = 'soin_guardian_signup_draft';
+
+const emptySignupForm = {
+  name: '',
+  userId: '',
+  password: '',
+  confirmPassword: '',
+  email: '',
+  phone: '',
+};
+
+const loadSignupDraft = () => {
+  try {
+    const raw = window.localStorage.getItem(SIGNUP_DRAFT_STORAGE_KEY);
+    if (!raw) return emptySignupForm;
+    const parsed = JSON.parse(raw) as Partial<typeof emptySignupForm>;
+    return {
+      name: parsed.name ?? '',
+      userId: parsed.userId ?? '',
+      password: parsed.password ?? '',
+      confirmPassword: parsed.confirmPassword ?? '',
+      email: parsed.email ?? '',
+      phone: parsed.phone ?? '',
+    };
+  } catch (error) {
+    console.error(error);
+    return emptySignupForm;
+  }
+};
+
 export function Signup({ onBack }: SignupProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    userId: '',
-    password: '',
-    confirmPassword: '',
-    email: '',
-    phone: '',
-  });
+  const [formData, setFormData] = useState(loadSignupDraft);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const next = { ...formData, [e.target.name]: e.target.value };
+    setFormData(next);
+    window.localStorage.setItem(SIGNUP_DRAFT_STORAGE_KEY, JSON.stringify(next));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,6 +65,7 @@ export function Signup({ onBack }: SignupProps) {
       try {
         await signup({ userId: formData.userId, name: formData.name, password: formData.password, email: formData.email });
         setIsLoading(false);
+        window.localStorage.removeItem(SIGNUP_DRAFT_STORAGE_KEY);
         window.alert('회원가입이 완료되었습니다.');
         onBack();
       } catch (error) {
@@ -70,7 +96,7 @@ export function Signup({ onBack }: SignupProps) {
               value={formData.name}
               onChange={handleChange}
               className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
-              placeholder="홍길동"
+              placeholder="이름을 입력하세요"
             />
           </div>
 
@@ -83,7 +109,7 @@ export function Signup({ onBack }: SignupProps) {
               value={formData.userId}
               onChange={handleChange}
               className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
-              placeholder="userid123"
+              placeholder="아이디를 입력하세요"
             />
           </div>
 
@@ -98,7 +124,7 @@ export function Signup({ onBack }: SignupProps) {
               value={formData.password}
               onChange={handleChange}
               className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
-              placeholder="••••••••"
+              placeholder="비밀번호를 입력하세요"
             />
             <p className="mt-1 text-xs text-slate-500">비밀번호는 8~12자</p>
           </div>
@@ -114,7 +140,7 @@ export function Signup({ onBack }: SignupProps) {
               value={formData.confirmPassword}
               onChange={handleChange}
               className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
-              placeholder="••••••••"
+              placeholder="비밀번호를 다시 입력하세요"
             />
             <p className="mt-1 text-xs text-slate-500">비밀번호는 8~12자</p>
           </div>
@@ -128,7 +154,7 @@ export function Signup({ onBack }: SignupProps) {
               value={formData.email}
               onChange={handleChange}
               className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
-              placeholder="email@example.com"
+              placeholder="이메일을 입력하세요"
             />
           </div>
 

@@ -52,6 +52,7 @@ export function FindAccount({ initialMode, onBack }: FindAccountProps) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
+                placeholder="이름을 입력하세요"
               />
             </div>
 
@@ -64,6 +65,7 @@ export function FindAccount({ initialMode, onBack }: FindAccountProps) {
                   value={userId}
                   onChange={(e) => setUserId(e.target.value)}
                   className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
+                  placeholder="아이디를 입력하세요"
                 />
               </div>
             ) : null}
@@ -76,6 +78,7 @@ export function FindAccount({ initialMode, onBack }: FindAccountProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:text-sm"
+                placeholder="이메일을 입력하세요"
               />
             </div>
           </div>

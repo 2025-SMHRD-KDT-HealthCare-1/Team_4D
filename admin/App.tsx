@@ -4,6 +4,7 @@ import { Dashboard } from './components/Dashboard';
 import { Monitoring } from './components/Monitoring';
 import { Statistics } from './components/Statistics';
 import { adminLogin, adminLogout } from './src/services/adminApi';
+import { socket } from './src/lib/socket';
 import logoUrl from './soin.png';
 
 export type View = 'dashboard' | 'events' | 'targets' | 'devices' | 'statistics' | 'settings';
@@ -38,6 +39,21 @@ export default function App() {
   const [status, setStatus] = useState<GlobalStatus>({ isLoading: false, errorMessage: '' });
 
   const role = useMemo(() => window.localStorage.getItem(AUTH_ROLE_KEY) || '', [isAuthenticated]);
+
+  useEffect(() => {
+    const onConnect = () => console.log('socket connected', socket.id);
+    const onAlert = (payload: unknown) => {
+      console.log('ALERT:', payload);
+    };
+
+    socket.on('connect', onConnect);
+    socket.on('alert', onAlert);
+
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('alert', onAlert);
+    };
+  }, []);
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -79,6 +95,7 @@ export default function App() {
       window.localStorage.setItem(AUTH_STORAGE_KEY, 'true');
       window.localStorage.setItem(AUTH_ROLE_KEY, result.user.role);
       window.localStorage.setItem(AUTH_TIME_KEY, String(Date.now()));
+      socket.emit('join', { userId: result.user.userId });
       setCurrentView('dashboard');
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : '로그인에 실패했습니다.');
